@@ -265,7 +265,10 @@ class TransparentVAEDecoder:
             result += [eps]
 
         result = torch.stack(result, dim=0)
-        median = torch.median(result, dim=0).values
+        if result.device.type == 'musa':
+            median = torch.median(result.cpu(), dim=0).values.to('musa')
+        else:
+            median = torch.median(result, dim=0).values
         return median
 
     @torch.no_grad()
